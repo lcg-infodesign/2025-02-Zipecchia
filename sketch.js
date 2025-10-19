@@ -24,8 +24,8 @@ function setup() {
   //creo il canvas
   //larghezza della finestra e altezza calcolata
   createCanvas(windowWidth, totalHeight);
-
   background("purple");
+  noLoop(); //così viene disegnato una sola volta
 
   console.log("cols: ", cols, " rows: ", rows);
 
@@ -78,7 +78,19 @@ function draw() {
     let xPos = outerPadding + colCount * (itemSize + padding);
     let yPos = outerPadding + rowCount * (itemSize + padding);
 
-    rect(xPos, yPos, scaledValue, scaledValue);
+    //rect(xPos, yPos, scaledValue, scaledValue); --> non voglio più dei rettangoli (erano la base)
+
+    //parto mettendo i valori delle colonne che serviranno per i glifi
+    let values = [
+      Number(data["column0"]),
+      Number(data["column1"]),
+      Number(data["column2"]),
+      Number(data["column3"]),
+      Number(data["column4"])
+     ];
+
+    //collego la funzione che disegna i glifi (i cerchi concentrici nel mio caso)
+    drawConcentricGlyph(xPos, yPos, values);
 
     // ad ogni ciclo aumento colCount
     colCount++;
@@ -89,4 +101,11 @@ function draw() {
       rowCount++;
     }
   }
+}
+
+//creo la funzione che mi disegna i glifi
+function drawConcentricGlyph(x, y, values) {
+  push(); //così modifico solo questa sezione
+
+  pop (); //ora torna tutto come prima
 }
