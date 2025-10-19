@@ -8,7 +8,7 @@ function preload() {
 function setup() {
   // controllo se ho caricato i dati
   smooth();
-  frameRate(200); //per dare maggiore fluidità
+  frameRate(30); //per dare maggiore fluidità
 
   let outerPadding = 20; //padding esterno
   let padding = 40; //padding tra gli elementi
