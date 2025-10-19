@@ -8,6 +8,8 @@ function preload() {
 function setup() {
   // controllo se ho caricato i dati
 
+  frameRate(90) //per dare maggiore fluidità
+
   let outerPadding = 20; //padding esterno
   let padding = 10; //padding tra gli elementi
   let itemSize = 30; //dimensioni degli elementi
@@ -25,7 +27,7 @@ function setup() {
   //larghezza della finestra e altezza calcolata
   createCanvas(windowWidth, totalHeight);
   background("purple");
-  noLoop(); //così viene disegnato una sola volta
+  //noLoop(); //così viene disegnato una sola volta --> mi serve per l'animazione
 
   console.log("cols: ", cols, " rows: ", rows);
 
@@ -106,6 +108,53 @@ function draw() {
 //creo la funzione che mi disegna i glifi
 function drawConcentricGlyph(x, y, values) {
   push(); //così modifico solo questa sezione
+
+  //trasformazioni globali
+  translate(x + itemSize / 2, y + itemSize / 2);
+
+  //COLUMN4 controlla la SCALA
+  let s = map(values[4], 0, 100, 0.6, 1.4);
+  scale(s);
+
+  noFill();
+  colorMode(RGB, 255);
+  
+  //COLUMN2 controlla il COLORE (dal bianco al blu)
+  let c1 = color(255, 255, 255);
+  let c2 = color(0, 0, 255);
+  let tColor = map(values[2], 0, 100, 0, 1); // colonna 2 = gradazione blu
+  let strokeCol = lerpColor(c1, c2, tColor);
+
+  //COLUMN0 controlla il NUMERO DEI CERCHI
+  let numeroCerchi = int(map(values[0], 0, 100, 3, 20));
+
+  //COLUMN3 controlla lo SPESSORE
+   let strokeW = map(values[3], 0, 100, 1, 5);
+  strokeWeight(strokeW);
+
+  // Disegno cerchi concentrici pulsanti
+  stroke(strokeCol);
+
+  // COLUMN1 controlla la VELOCITÀ e AMPIEZZA dell’animazione
+  let speed = map(values[1], 0, 100, 0.03, 0.15);
+  let amplitude = map(values[1], 0, 100, 0.03, 0.15); // più alto = pulsazione più ampia
+  let pulsation = sin(frameCount * speed) * amplitude;
+
+  // diametro massimo (oscilla nel tempo)
+  let diametroMax = itemSize * 0.9 * (1 + pulsation);
+  let spacing = diametroMax / numeroCerchi;
+
+  for (let i = 0; i < numeroCerchi; i++) {
+    let diametro = max(6, diametroMax - i * spacing);
+    ellipse(0, 0, diametro, diametro);
+  }
+
+  // Cerchio centrale pieno che pulsa insieme
+  let innerColor = lerpColor(c2, c1, tColor * 0.5);
+  fill(innerColor);
+  noStroke();
+  ellipse(0, 0, itemSize * 0.2 * (1 + pulsation), itemSize * 0.2 * (1 + pulsation));
+
 
   pop (); //ora torna tutto come prima
 }
