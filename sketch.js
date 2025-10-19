@@ -7,12 +7,12 @@ function preload() {
 
 function setup() {
   // controllo se ho caricato i dati
-
-  frameRate(90) //per dare maggiore fluidità
+  smooth();
+  frameRate(200); //per dare maggiore fluidità
 
   let outerPadding = 20; //padding esterno
-  let padding = 10; //padding tra gli elementi
-  let itemSize = 30; //dimensioni degli elementi
+  let padding = 40; //padding tra gli elementi
+  let itemSize = 80; //dimensioni degli elementi
 
   // calcolo il numero di colonne
   //colonne = larghezza - 2 per il padding esterno / diviso dell'item + più il paddig interno
@@ -44,6 +44,24 @@ function draw() {
 
   let colCount = 0;
   let rowCount = 0;
+
+  // 🔹 Calcolo tutti i min e max per le colonne (una sola volta per frame)
+  let allValues0 = table.getColumn("column0");
+  let allValues1 = table.getColumn("column1");
+  let allValues2 = table.getColumn("column2");
+  let allValues3 = table.getColumn("column3");
+  let allValues4 = table.getColumn("column4");
+
+  let minValue0 = min(allValues0);
+  let maxValue0 = max(allValues0);
+  let minValue1 = min(allValues1);
+  let maxValue1 = max(allValues1);
+  let minValue2 = min(allValues2);
+  let maxValue2 = max(allValues2);
+  let minValue3 = min(allValues3);
+  let maxValue3 = max(allValues3);
+  let minValue4 = min(allValues4);
+  let maxValue4 = max(allValues4);
 
   //così legge ogni riga
   for (let rowNumber = 0; rowNumber < table.getRowCount(); rowNumber++) {
@@ -92,7 +110,14 @@ function draw() {
      ];
 
     //collego la funzione che disegna i glifi (i cerchi concentrici nel mio caso)
-    drawConcentricGlyph(xPos, yPos, values);
+    drawConcentricGlyph(
+      xPos, yPos, values,
+      minValue0, maxValue0,
+      minValue1, maxValue1,
+      minValue2, maxValue2,
+      minValue3, maxValue3,
+      minValue4, maxValue4
+    );
 
     // ad ogni ciclo aumento colCount
     colCount++;
@@ -106,14 +131,21 @@ function draw() {
 }
 
 //creo la funzione che mi disegna i glifi
-function drawConcentricGlyph(x, y, values) {
+function drawConcentricGlyph(
+  x, y, values,
+  minValue0, maxValue0, //metto tutti i min e max value così che io possa poi dopo valutare tutti i valori
+  minValue1, maxValue1,
+  minValue2, maxValue2,
+  minValue3, maxValue3,
+  minValue4, maxValue4
+) {
   push(); //così modifico solo questa sezione
 
   //trasformazioni globali
   translate(x + itemSize / 2, y + itemSize / 2);
 
   //COLUMN4 controlla la SCALA
-  let s = map(values[4], 0, 100, 0.6, 1.4);
+  let s = map(values[4], minValue4, maxValue4, 0.6, 1.4);
   scale(s);
 
   noFill();
@@ -122,22 +154,22 @@ function drawConcentricGlyph(x, y, values) {
   //COLUMN2 controlla il COLORE (dal bianco al blu)
   let c1 = color(255, 255, 255);
   let c2 = color(0, 0, 255);
-  let tColor = map(values[2], 0, 100, 0, 1); // colonna 2 = gradazione blu
+  let tColor = map(values[2], minValue2, maxValue2, 0, 1); // colonna 2 = gradazione blu
   let strokeCol = lerpColor(c1, c2, tColor);
 
   //COLUMN0 controlla il NUMERO DEI CERCHI
-  let numeroCerchi = int(map(values[0], 0, 100, 3, 20));
+  let numeroCerchi = int(map(values[0], minValue0, maxValue0, 3, 20));
 
   //COLUMN3 controlla lo SPESSORE
-   let strokeW = map(values[3], 0, 100, 1, 5);
+  let strokeW = map(values[3], minValue3, maxValue3, 1, 5);
   strokeWeight(strokeW);
 
   // Disegno cerchi concentrici pulsanti
   stroke(strokeCol);
 
   // COLUMN1 controlla la VELOCITÀ e AMPIEZZA dell’animazione
-  let speed = map(values[1], 0, 100, 0.03, 0.15);
-  let amplitude = map(values[1], 0, 100, 0.03, 0.15); // più alto = pulsazione più ampia
+  let speed = map(values[1], minValue1, maxValue1, 0.03, 0.15);
+  let amplitude = map(values[1], minValue1, maxValue1, 0.03, 0.15); // più alto = pulsazione più ampia
   let pulsation = sin(frameCount * speed) * amplitude;
 
   // diametro massimo (oscilla nel tempo)
@@ -154,7 +186,6 @@ function drawConcentricGlyph(x, y, values) {
   fill(innerColor);
   noStroke();
   ellipse(0, 0, itemSize * 0.2 * (1 + pulsation), itemSize * 0.2 * (1 + pulsation));
-
 
   pop (); //ora torna tutto come prima
 }
